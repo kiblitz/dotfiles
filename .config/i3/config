@@ -185,3 +185,4 @@ bar {
 }
 
 bindsym $mod+n exec google-chrome
+bindsym $mod+Shift+e exec emacs

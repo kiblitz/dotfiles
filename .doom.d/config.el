@@ -75,23 +75,26 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+(require 'transient)
+(require 'yasnippet)
+
 (transient-define-prefix resize-transient ()
   "Resize transient mode"
   :transient-suffix 'transient--do-stay
-  [["Resize"
+  ["Resize"
     ("k" "grow vertical" enlarge-window)
     ("j" "shrink vertical" shrink-window)
     ("l" "grow horizontal" enlarge-window-horizontally)
     ("h" "shrink horizontal" shrink-window-horizontally)
-    ]]
+    ]
   )
 (transient-define-prefix font-zoom-transient ()
   "Font zoom transient mode"
   :transient-suffix 'transient--do-stay
-  [["Zoom"
+  ["Zoom"
     ("k" "zoom in" text-scale-increase)
     ("j" "zoom out" text-scale-decrease)
-    ]]
+    ]
   )
 
 (map!
@@ -113,4 +116,8 @@
  :leader "a f t" (lambda () (interactive) (find-file "~/projects"))
 
  :leader "z x" #'font-zoom-transient
+ ;; requires [focus]
+ :leader "z f" #'focus-mode
  )
+
+(add-hook 'emacs-startup-hook (lambda () (yas-load-directory "~/.doom.d/snippets/emacs-lisp-mode/")))

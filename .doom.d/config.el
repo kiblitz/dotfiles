@@ -97,9 +97,23 @@
     ]
   )
 
+;; (defun init-ocaml-project (type)
+;;   (interactive "sproject name: ")
+;;   (shell-command (concatenate 'string "dune init " type " %s")))
+
+;; (transient-define-prefix init-project ()
+;;   "Initialize project"
+;;   ["OCaml"
+;;     ("l" "lib" (init-ocaml-project "lib"))
+;;     ("x" "exec" (init-ocaml-project "exec"))
+;;     ]
+;;   )
+
 (map!
  :leader "SPC" nil
  :leader "SPC" #'execute-extended-command
+
+ :leader "!" #'shell-command
 
  :leader "f e" nil
  :leader "f e d" #'doom/open-private-config
@@ -112,12 +126,66 @@
  :leader "TAB" #'previous-buffer
  :leader "<backtab>" #'next-buffer
 
+ :leader "b l" #'buffer-menu
+
  :leader "a" nil
  :leader "a f t" (lambda () (interactive) (find-file "~/projects"))
+ ;; :leader "a f i" #'init-project
+ :leader "a f c" #'magit-clone
+ :leader "a f l" #'magit-log-head
 
  :leader "z x" #'font-zoom-transient
  ;; requires [focus]
  :leader "z f" #'focus-mode
+
+ :leader ";" nil
+ :leader "; ;" #'comment-line
  )
 
 (add-hook 'emacs-startup-hook (lambda () (yas-load-directory "~/.doom.d/snippets/emacs-lisp-mode/")))
+
+;; surround text
+(map!
+ :v "s" #'evil-surround-region
+ )
+(after! evil-surround
+  (let ((pairs '(
+                 (?> "< " . " >")
+                 (?\) "( " . " )")
+                 (?\] "[ " . " ]")
+                 )))
+    (prependq! evil-surround-pairs-alist pairs)
+    (prependq! evil-embrace-evil-surround-keys (mapcar #'car pairs))))
+
+(defun glee-emacs ()
+  (let* ((banner '(
+"                                           '                              )`·.                                                     ’                                                  ’"
+"                        )·.          '             /(    .·´(        (`·.                    )`·._.·´(        )`·.     (`·.                    )`·._.·´(        )`·."
+"               /(    .·´  ('                 )\    ) `·._):. )’'       \::`·._)`·.     )\.·´::...  .::)   .·´   ./       \::`·._)`·.     )\.·´::...  .::)   .·´   ./"
+"        )\    ’) `·._):::. )            )\.·´.:`·.(:;;-' '\:(     .·´(   )::. ..:::).·´;· --  ´ ´\::.`·.(::...:(’    .·´(   )::. ..:::).·´;· --  ´ ´\::.`·.(::...:(’  "
+"  )\ .·´ .:`·.(:;--’’\:. :(.·)   )\ .·´(,): --  ' '       _\;   ·´):.\(;;::--´ ´          ’\:::::::...::)    ):..\(;;::--  ´ ´               ’\:::::::...::)  "
+";´ (,):--’’           \....::`·.( ():.:/\           ,..:´/     (:..:/\                          ’¯¯¯¯¯¯/'   (::...:/\                          ’¯¯¯¯¯¯/'   "
+"):.:/\                 ¯¯¯¯`· ::·’' `·/::\..:´/    /::::/       `·:/::\..:´/     _________'/       `·:/::::\...:´/        ___________'/     "
+"`·:/::\..:´/    ______       \     '  \::/:::/    /;::-'     '     \::/:::/     /:::::::;; --  ´ ´\     ’     \::::/::::/        /:::::::::;; --  ´ ´\     ’"
+"   \::/:::/    /:::::/\       |   ’    \/;:'/    /          '       \/;:'/     /;:·-´ ´         _\    '       \/;::-'/        /;;::·-  ´ ´         _\    '"
+"    \/;:'/    /;:·´¯¯¯'\\,,..-´   '        /    /                       /              .,.,·:::::'/   ’'            /                      .,.,·:::::'/   ’'"
+"        /    /\         \:::'/           ,/    /      )`·.      )`·.  '/      _.,,·:::::::::::::::/     '  )`·.    '/         _ ,.,.,·:::::::::::::::/     '"
+"      ,/    /::\,-´/    /::-´          .·/|    |   .·´ ..( '   (:.:(.·/      /:::::::::::::::::::--  ´      ’(::..:(.·/         /:::::::::::::::::::--  ´      ’"
+"      /|    '|\/::/    /       '       )/:|,   `·’.):..::/.--.`·::..'/       `·__:::::· ’\:   .·´            `·::..'/          `·__:::::· ’\:   .·´           "
+"     /:/`·,   `·:/    /    '           |:::::.,     ¯¯¯¯¯¯  ;/     )/`.                         \(              ’     )/`·.                        \(              ’"
+"    |:/:::::`·,___,.·/          '      |:::::::::..______.·´:/’    /:::`·._____ ...·::/                    /::::::`·._____ ...·::::::/                "
+"     `·:;::::/:::/::/            '      ´'·::::;:/::::::/::·´'     `;::::/::::/::::::/                 ’    `·:::::::/::::::::/:::::::::/                 ’"
+"         `·;/:::/;·´     '                   ´'·/::::::/:·´          `·:/::::/::: ·´´                   ’        `·::/::::::::/::::: ·´´                   ’"
+"            ¯¯¯¯                     ’'          ¯¯¯¯¯¯     '           ¯¯¯¯¯                                          ¯¯¯¯¯                              "
+))
+         (longest-line (apply #'max (mapcar #'length banner))))
+    (put-text-property
+     (point)
+     (dolist (line banner (point))
+       (insert (+doom-dashboard--center
+                +doom-dashboard--width
+                (concat line (make-string (max 0 (- longest-line (length line))) 32)))
+               "\n"))
+     'face 'doom-dashboard-banner)))
+
+(setq +doom-dashboard-ascii-banner-fn #'glee-emacs)
